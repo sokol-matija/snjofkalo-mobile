@@ -1,20 +1,51 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Button, TextInput } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  Button, 
+  TextInput, 
+  ActivityIndicator, 
+  Alert 
+} from 'react-native';
 import { useAuth } from '../context/AuthContext';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login } = useAuth();
+  const { login, loading, error } = useAuth();
 
-  const handleLogin = () => {
-    // In a real app, you'd validate inputs here
-    if (email && password) {
-      login({ email });
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Home' }],
-      });
+  // Show error alert when error state changes
+  React.useEffect(() => {
+    if (error) {
+      Alert.alert('Login Error', error);
+    }
+  }, [error]);
+
+  const validateForm = () => {
+    if (!email.trim()) {
+      Alert.alert('Validation Error', 'Please enter your email address');
+      return false;
+    }
+    
+    if (!password) {
+      Alert.alert('Validation Error', 'Please enter your password');
+      return false;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert('Validation Error', 'Please enter a valid email address');
+      return false;
+    }
+    
+    return true;
+  };
+
+  const handleLogin = async () => {
+    if (validateForm()) {
+      // The navigation will be handled by AppNavigator when isLoggedIn changes
+      await login({ email, password });
     }
   };
 
@@ -28,6 +59,8 @@ const LoginScreen = ({ navigation }) => {
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
+        keyboardType="email-address"
+        editable={!loading}
       />
       
       <TextInput
@@ -36,16 +69,26 @@ const LoginScreen = ({ navigation }) => {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        editable={!loading}
       />
       
       <View style={styles.buttonContainer}>
-        <Button title="Login" onPress={handleLogin} />
+        {loading ? (
+          <ActivityIndicator size="large" color="#4a80f5" />
+        ) : (
+          <Button 
+            title="Login" 
+            onPress={handleLogin} 
+            disabled={loading}
+          />
+        )}
       </View>
       
       <View style={styles.buttonContainer}>
         <Button
           title="Go to Register"
           onPress={() => navigation.navigate('Register')}
+          disabled={loading}
         />
       </View>
     </View>
@@ -75,6 +118,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginBottom: 10,
     width: '100%',
+    minHeight: 40,
+    justifyContent: 'center',
   },
 });
 

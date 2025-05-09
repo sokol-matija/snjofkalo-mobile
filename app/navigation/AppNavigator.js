@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useAuth } from '../context/AuthContext';
 
@@ -9,7 +9,12 @@ import HomeScreen from '../screens/HomeScreen';
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, initializing } = useAuth();
+
+  // Show loading screen during token validation
+  if (initializing) {
+    return null; // Or a splash screen/loading component
+  }
 
   // Auth Navigator: Shows Login and Register screens when not logged in
   const AuthNavigator = () => (
@@ -17,10 +22,12 @@ const AppNavigator = () => {
       <Stack.Screen 
         name="Login" 
         component={LoginScreen} 
+        options={{ title: 'Sign In' }}
       />
       <Stack.Screen 
         name="Register" 
         component={RegisterScreen} 
+        options={{ title: 'Create Account' }}
       />
     </Stack.Navigator>
   );
@@ -33,7 +40,7 @@ const AppNavigator = () => {
         component={HomeScreen} 
         options={{ 
           title: 'Home',
-          headerLeft: null, // Prevent going back to login
+          headerLeft: () => null, 
         }}
       />
     </Stack.Navigator>

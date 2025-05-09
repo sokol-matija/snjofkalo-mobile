@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/sokol-matija/snjofkalo-mobile#readme",
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.1.2",
     "@react-navigation/native": "^7.1.8",
     "@react-navigation/stack": "^7.3.1",
     "react": "^19.1.0",

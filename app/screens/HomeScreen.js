@@ -1,14 +1,19 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Button } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Button, ActivityIndicator } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 
 const HomeScreen = () => {
-  const { logout } = useAuth();
+  const { user, logout, loading } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Welcome to Our App</Text>
+        {user && <Text style={styles.userEmail}>{user.email}</Text>}
       </View>
       
       <View style={styles.section}>
@@ -33,11 +38,16 @@ const HomeScreen = () => {
       </View>
 
       <View style={styles.logoutContainer}>
-        <Button
-          title="Logout"
-          onPress={logout}
-          color="#ff6347"
-        />
+        {loading ? (
+          <ActivityIndicator size="large" color="#ff6347" />
+        ) : (
+          <Button
+            title="Logout"
+            onPress={handleLogout}
+            color="#ff6347"
+            disabled={loading}
+          />
+        )}
       </View>
     </ScrollView>
   );
@@ -58,6 +68,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
   },
+  userEmail: {
+    color: 'white',
+    marginTop: 5,
+  },
   section: {
     padding: 15,
     marginVertical: 10,
@@ -77,6 +91,8 @@ const styles = StyleSheet.create({
   logoutContainer: {
     padding: 15,
     marginVertical: 10,
+    minHeight: 50,
+    justifyContent: 'center',
   }
 });
 
